@@ -185,7 +185,7 @@ resource "oci_core_instance" "microcube" {
       "sudo microk8s config | sed  5d > microk8s-kubeconfig && sudo sed -i '5 e cat ip2' microk8s-kubeconfig && rm ip*",
       "curl -fsSL https://goss.rocks/install | sudo sh",
       "curl -s https://raw.githubusercontent.com/kmonticolo/terraform-microk8s-oci/main/goss.yaml -o goss.yaml",
-      "sudo goss v",
+      "sleep 30; sudo goss v",
     ]
   }
 }
