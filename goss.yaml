@@ -112,7 +112,7 @@ command:
     - 'registry             # Private image registry exposed on localhost:32000'
     - 'traefik              # traefik Ingress controller for external access'
     stderr: []
-    timeout: 5000
+    timeout: 10000
   snap info microk8s|grep ^installed:
     exit-status: 0
     stdout:
