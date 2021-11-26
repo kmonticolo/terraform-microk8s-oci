@@ -1,0 +1,124 @@
+file:
+  /home/ubuntu/.kube/config:
+    title: Ensure configuration exists
+    exists: true
+    mode: "0664"
+    owner: ubuntu
+    group: ubuntu
+    filetype: file
+    contains: []
+  /var/snap/microk8s/current/certs/csr.conf.template:
+    title: Ensure template has IP.99 entry
+    exists: true
+    mode: "0660"
+    owner: root
+    group: microk8s
+    filetype: file
+    contains:
+    - IP.99 =
+package:
+  docker.io:
+    title: Ensure package docker.io exists
+    installed: true
+    versions:
+    - 20.10.7-0ubuntu5~20.04.2
+port:
+  tcp:22:
+    listening: true
+    ip:
+    - 0.0.0.0
+  tcp:53:
+    listening: true
+    ip:
+    - 127.0.0.53
+  tcp:111:
+    listening: true
+    ip:
+    - 0.0.0.0
+  tcp:19001:
+    listening: true
+    ip:
+    - 127.0.0.1
+service:
+  docker:
+    title: Ensure service docker is running
+    enabled: true
+    running: true
+user:
+  lxd:
+    title: ensure lxd user exists
+    exists: true
+    uid: 998
+    gid: 100
+    groups:
+    - users
+    home: /var/snap/lxd/common/lxd
+    shell: /bin/false
+group:
+  docker:
+    title: ensure docker group exists
+    exists: true
+    gid: 119
+  lxd:
+    title: ensure lxd group exists
+    exists: true
+    gid: 118
+  microk8s:
+    title: ensure microk8s group exists
+    exists: true
+    gid: 998
+command:
+  ? grep -B1 '\-A INPUT -j REJECT --reject-with icmp-host-prohibited' /etc/iptables/rules.v4
+    |head -1|grep -q '^\-I INPUT -s.* -j ACCEPT'
+  : exit-status: 0
+    stdout: []
+    stderr: []
+    timeout: 10000
+  grep -q $(curl -s ifconfig.co) /var/snap/microk8s/current/certs/csr.conf.template:
+    exit-status: 0
+    stdout: []
+    stderr: []
+    timeout: 10000
+  grep -q server:\ https://$(curl -s ifconfig.co):16443 /home/ubuntu/microk8s-kubeconfig:
+    exit-status: 0
+    stdout: []
+    stderr: []
+    timeout: 10000
+  microk8s status:
+    exit-status: 0
+    stdout:
+    - microk8s is running
+    - 'high-availability: no'
+    - 'datastore master nodes: 127.0.0.1:19001'
+    - 'datastore standby nodes: none'
+    - 'addons:'
+    - 'enabled:'
+    - 'dns                  # CoreDNS'
+    - 'ha-cluster           # Configure high availability on the current node'
+    - 'storage              # Storage class; allocates storage from host directory'
+    - 'disabled:'
+    - 'dashboard            # The Kubernetes dashboard'
+    - 'helm                 # Helm 2 - the package manager for Kubernetes'
+    - 'helm3                # Helm 3 - Kubernetes package manager'
+    - 'host-access          # Allow Pods connecting to Host services smoothly'
+    - 'ingress              # Ingress controller for external access'
+    - 'linkerd              # Linkerd is a service mesh for Kubernetes and other frameworks'
+    - 'metallb              # Loadbalancer for your Kubernetes cluster'
+    - 'metrics-server       # K8s Metrics Server for API access to service metrics'
+    - 'openebs              # OpenEBS is the open-source storage solution for Kubernetes'
+    - 'portainer            # Portainer UI for your Kubernetes cluster'
+    - 'prometheus           # Prometheus operator for monitoring and logging'
+    - 'rbac                 # Role-Based Access Control for authorisation'
+    - 'registry             # Private image registry exposed on localhost:32000'
+    - 'traefik              # traefik Ingress controller for external access'
+    stderr: []
+    timeout: 5000
+  snap info microk8s|grep ^installed:
+    exit-status: 0
+    stdout:
+    - 'installed:          v1.22.3             (2628) 170MB classic'
+    stderr: []
+    timeout: 10000
+process:
+  kubelite:
+    running: true
